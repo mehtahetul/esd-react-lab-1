@@ -10,15 +10,38 @@ export default function App() {
   // Section 07: the matrix lives in App's state, starting from START.
   const [matrix, setMatrix] = useState(START);
 
-  // Section 08: write increment(row, col): it calls the setter with incrementAt.
-  //             Pass it down to Matrix as onIncrement.
-  // Section 09: render <Stats matrix={…} /> NEXT TO the matrix, not inside it.
-  // Section 11: load /matrix.json once, in a useEffect, and put it in the state.
+  // Section 11: load the starting numbers from the "server" once, after the first render.
+  useEffect(() => {
+    let ignore = false; // StrictMode runs effects twice in dev; drop the stale answer.
+    fetch("/matrix.json")
+      .then((response) => {
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        return response.json();
+      })
+      .then((data) => {
+        if (!ignore) setMatrix(data);
+      })
+      .catch(() => {
+        // Keep the starting numbers if the request fails.
+      });
+    return () => {
+      ignore = true;
+    };
+  }, []);
+
+  // Section 08: events come up from Cell → Matrix → here. The updater form always
+  // works on the latest matrix, and incrementAt returns a new one (no mutation).
+  function increment(row, col) {
+    setMatrix((prev) => incrementAt(prev, row, col));
+  }
+
+  // Section 09: Stats sits NEXT TO the matrix inside .board, not inside the table.
   return (
     <main className="app">
       <Header />
       <div className="board">
-        <Matrix matrix={matrix} />
+        <Matrix matrix={matrix} onIncrement={increment} />
+        <Stats matrix={matrix} />
       </div>
     </main>
   );
