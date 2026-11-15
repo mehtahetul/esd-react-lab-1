@@ -12,13 +12,13 @@ export const START = [
   [7, 8, 9],
 ];
 
-// Section 08 — a NEW matrix with one cell increased by one.
+// Section 08 — a NEW matrix with one cell increased by one (by `step`, section 12).
 //   incrementAt([[1, 2], [3, 4]], 1, 0)  →  [[1, 2], [4, 4]]
 // Never change `matrix` (the tests freeze it, so changing it throws).
 // Rows you don't touch must stay the SAME arrays; only the changed row is new.
-export function incrementAt(matrix, row, col) {
+export function incrementAt(matrix, row, col, step = 1) {
   return matrix.map((rowValues, r) =>
-    r === row ? rowValues.map((value, c) => (c === col ? value + 1 : value)) : rowValues
+    r === row ? rowValues.map((value, c) => (c === col ? value + step : value)) : rowValues
   );
 }
 
@@ -40,10 +40,15 @@ export function stats(matrix) {
 // Section 12 (stretch) — the same shape, every cell 0.
 //   zeros([[1, 2], [3, 4]])  →  [[0, 0], [0, 0]]
 export function zeros(matrix) {
-  throw new Error("TODO");
+  return matrix.map((rowValues) => rowValues.map(() => 0));
 }
 
-// IN-LAB TASK (AI closed) — leave this until the lab. See inlab/decrement.check.jsx.
+// In-lab task — like incrementAt, but one less, never below 0. See inlab/decrement.check.jsx.
+// If the cell is already 0 nothing changes, so the SAME matrix comes back
+// (React then skips the re-render, since the state didn't change).
 export function decrementAt(matrix, row, col) {
-  throw new Error("TODO");
+  if (matrix[row][col] === 0) return matrix;
+  return matrix.map((rowValues, r) =>
+    r === row ? rowValues.map((value, c) => (c === col ? value - 1 : value)) : rowValues
+  );
 }
